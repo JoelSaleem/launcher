@@ -28,7 +28,7 @@ use tui::{
     Terminal,
 };
 
-use termion::input::TermRead;
+use termion::input::TermRead; // Do not delete
 use yaml_rust;
 
 fn main() -> Result<()> {
@@ -41,7 +41,8 @@ fn main() -> Result<()> {
     let mut events = Events::new();
     let mut app = app::App::default();
 
-    let f = fs::read_to_string("settings.yaml").expect("could not read settings.yaml");
+    let f = fs::read_to_string("/Users/joelsaleem/.gitlauncher/settings.yaml")
+        .expect("could not read settings.yaml");
     let settings = yaml_rust::YamlLoader::load_from_str(&f).unwrap();
     let repo_data = settings[0]["repos"].as_vec().unwrap();
 
@@ -113,7 +114,9 @@ fn main() -> Result<()> {
                 )
                 .split(f.size());
 
-            let mut text = Text::from(Spans::from("Launcher"));
+            let mut text = Text::from(Spans::from(
+                "Launcher (press `esc` to quit, `enter` to open code, type to `search`)",
+            ));
             text.patch_style(Style::default());
             let help_message = Paragraph::new(text);
             f.render_widget(help_message, chunks[0]);
@@ -150,7 +153,7 @@ fn main() -> Result<()> {
                     break;
                 }
                 Key::Char('\n') => {
-                    if app.filtered_repos.len() > 0 {
+                    if app.selected_idx < app.filtered_repos.len() {
                         let selected_repo = &app.filtered_repos[app.selected_idx];
                         Command::new("sh")
                             .arg("-c")

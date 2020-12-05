@@ -18,9 +18,9 @@ use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
 use tui::{
     backend::TermionBackend,
     layout::{Constraint, Direction, Layout},
-    style::Style,
-    text::{Spans, Text},
-    widgets::{Block, Borders, Paragraph},
+    style::{Color, Style},
+    text::{Span, Spans, Text},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
     Terminal,
 };
 
@@ -31,7 +31,7 @@ use yaml_rust;
 struct Repo {
     pub name: String,
     pub path: String,
-    pub colour: String,
+    pub colour: Color,
     pub keyword: String,
 }
 
@@ -40,7 +40,7 @@ impl Repo {
         Repo {
             name: String::new(),
             path: String::new(),
-            colour: String::new(),
+            colour: Color::White,
             keyword: String::new(),
         }
     }
@@ -56,7 +56,7 @@ fn main() -> Result<()> {
     let mut events = Events::new();
     let mut app = app::App::default();
 
-    let f = fs::read_to_string("settings.yaml")?;
+    let f = fs::read_to_string("settings.yaml").expect("could not read settings.yaml");
     let settings = yaml_rust::YamlLoader::load_from_str(&f).unwrap();
     let repo_data = settings[0]["repos"].as_vec().unwrap();
 
@@ -70,7 +70,27 @@ fn main() -> Result<()> {
                 match key.as_str().unwrap() {
                     "name" => repo.name = String::from(val.as_str().unwrap()),
                     "path" => repo.path = String::from(val.as_str().unwrap()),
-                    "colour" => repo.colour = String::from(val.as_str().unwrap()),
+                    "colour" => {
+                        let col_data = val.as_hash().unwrap();
+                        let mut red: u8 = 0;
+                        let mut green: u8 = 0;
+                        let mut blue: u8 = 0;
+                        for (col, val) in col_data.iter() {
+                            match col.as_str().unwrap() {
+                                "r" => {
+                                    red = val.as_i64().unwrap() as u8;
+                                }
+                                "g" => {
+                                    green = val.as_i64().unwrap() as u8;
+                                }
+                                "b" => {
+                                    blue = val.as_i64().unwrap() as u8;
+                                }
+                                _ => {}
+                            }
+                        }
+                        repo.colour = Color::Rgb(red, green, blue);
+                    }
                     "keyword" => repo.keyword = String::from(val.as_str().unwrap()),
                     _ => {}
                 }
@@ -80,7 +100,10 @@ fn main() -> Result<()> {
         }
     }
 
-    println!("{:?}", repos);
+    // println!("{:?}", repos);
+    if repos.len() == 0 {
+        panic!("No repos set in the settings.yaml file");
+    }
 
     loop {
         // Draw UI
@@ -108,22 +131,23 @@ fn main() -> Result<()> {
                 .block(Block::default().borders(Borders::ALL).title("Search"));
             f.render_widget(input, chunks[1]);
 
-            /*
-             * TODO: PARSING
-             */
+            let list_items: Vec<ListItem> = repos
+                .iter()
+                .enumerate()
+                .map(|(idx, item)| {
+                    let should_highlight = app.selected_idx == idx;
+                    let style = if should_highlight {
+                        Style::default().bg(item.colour)
+                    } else {
+                        Style::default().fg(item.colour)
+                    };
 
-            // let messages: Vec<ListItem> = app
-            //     .messages
-            //     .iter()
-            //     .enumerate()
-            //     .map(|(i, m)| {
-            //         let content = vec![Spans::from(Span::raw(format!("{}: {}", i, m)))];
-            //         ListItem::new(content)
-            //     })
-            //     .collect();
-            // let messages =
-            //     List::new(messages).block(Block::default().borders(Borders::ALL).title("Messages"));
-            // f.render_widget(messages, chunks[2]);
+                    ListItem::new(Spans::from(Span::styled(&item.name, style)))
+                })
+                .collect();
+            let repo_list =
+                List::new(list_items).block(Block::default().borders(Borders::ALL).title("Repos"));
+            f.render_widget(repo_list, chunks[2]);
         })?;
 
         // Handle input
@@ -131,11 +155,17 @@ fn main() -> Result<()> {
             match input {
                 Key::Esc => {
                     break;
-                    // events.enable_exit_key();
                 }
                 Key::Char('\n') => {
                     println!("rtn");
                     // app.messages.push(app.input.drain(..).collect());
+                }
+                Key::Down => {
+                    app.selected_idx = (app.selected_idx + 1) % repos.len();
+                }
+                Key::Up => {
+                    app.selected_idx = (app.selected_idx + repos.len() - 1) % repos.len();
+                    // println!("{}", (app.selected_idx - 1 + repos.len()) % repos.len());
                 }
                 Key::Char(c) => {
                     println!("char {}", c);

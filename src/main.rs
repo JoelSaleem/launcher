@@ -90,6 +90,14 @@ fn main() -> Result<()> {
     }
 
     loop {
+        app.filtered_repos = Vec::new();
+        for repo in app.repos.iter() {
+            if repo.name.contains(&app.search_str) {
+                app.filtered_repos.push(repo.clone());
+            }
+        }
+        // println!("{}", app.filtered_repos.len());
+
         // Draw UI
         terminal.draw(|f| {
             let chunks = Layout::default()
@@ -116,7 +124,7 @@ fn main() -> Result<()> {
             f.render_widget(input, chunks[1]);
 
             let list_items: Vec<ListItem> = app
-                .repos
+                .filtered_repos
                 .iter()
                 .enumerate()
                 .map(|(idx, item)| {
@@ -142,26 +150,33 @@ fn main() -> Result<()> {
                     break;
                 }
                 Key::Char('\n') => {
-                    let selected_repo = &app.repos[app.selected_idx];
-                    Command::new("sh")
-                        .arg("-c")
-                        .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
-                        .output()
-                        .unwrap();
-                    break;
+                    if app.filtered_repos.len() > 0 {
+                        let selected_repo = &app.filtered_repos[app.selected_idx];
+                        Command::new("sh")
+                            .arg("-c")
+                            .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
+                            .output()
+                            .unwrap();
+                        break;
+                    }
                 }
                 Key::Down => {
-                    app.selected_idx = (app.selected_idx + 1) % app.repos.len();
+                    if app.filtered_repos.len() > 0 {
+                        app.selected_idx = (app.selected_idx + 1) % app.filtered_repos.len();
+                    }
                 }
                 Key::Up => {
-                    app.selected_idx = (app.selected_idx + app.repos.len() - 1) % app.repos.len();
+                    if app.filtered_repos.len() > 0 {
+                        app.selected_idx = (app.selected_idx + app.filtered_repos.len() - 1)
+                            % app.filtered_repos.len();
+                    }
                 }
-                // Key::Char(c) => {
-                //     println!("char {}", c);
-                // }
-                // Key::Backspace => {
-                //     println!("backspace");
-                // }
+                Key::Char(c) => {
+                    app.search_str.push(c);
+                }
+                Key::Backspace => {
+                    app.search_str.pop();
+                }
                 _ => {}
             }
         }

@@ -1,6 +1,6 @@
 use tui::style::Color;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Repo {
     pub name: String,
     pub path: String,

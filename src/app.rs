@@ -9,8 +9,9 @@ pub enum Mode {
 pub struct App {
     pub search_str: String,
     pub selected_idx: usize,
-    pub repos: Vec<Repo>,
     pub mode: Mode,
+    pub repos: Vec<Repo>,
+    pub filtered_repos: Vec<Repo>,
 }
 
 impl Default for App {
@@ -19,6 +20,7 @@ impl Default for App {
             search_str: String::new(),
             selected_idx: 0,
             repos: Vec::new(),
+            filtered_repos: Vec::new(),
             mode: Mode::Selecting,
         }
     }

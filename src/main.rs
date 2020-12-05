@@ -6,6 +6,7 @@ use crate::events::{Event, Events};
 use io::Result;
 use std::fs;
 use std::io;
+use std::process::Command;
 use std::sync::mpsc;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -157,24 +158,26 @@ fn main() -> Result<()> {
                     break;
                 }
                 Key::Char('\n') => {
-                    println!("rtn");
-                    // app.messages.push(app.input.drain(..).collect());
+                    let selected_repo = &repos[app.selected_idx];
+                    Command::new("sh")
+                        .arg("-c")
+                        .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
+                        .output()
+                        .unwrap();
+                    break;
                 }
                 Key::Down => {
                     app.selected_idx = (app.selected_idx + 1) % repos.len();
                 }
                 Key::Up => {
                     app.selected_idx = (app.selected_idx + repos.len() - 1) % repos.len();
-                    // println!("{}", (app.selected_idx - 1 + repos.len()) % repos.len());
                 }
-                Key::Char(c) => {
-                    println!("char {}", c);
-                    // app.input.push(c);
-                }
-                Key::Backspace => {
-                    println!("backspace");
-                    // app.input.pop();
-                }
+                // Key::Char(c) => {
+                //     println!("char {}", c);
+                // }
+                // Key::Backspace => {
+                //     println!("backspace");
+                // }
                 _ => {}
             }
         }

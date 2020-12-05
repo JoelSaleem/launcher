@@ -1,6 +1,9 @@
 mod app;
 mod config;
 mod events;
+mod repo;
+
+use crate::repo::Repo;
 
 use crate::events::{Event, Events};
 use io::Result;
@@ -28,25 +31,6 @@ use tui::{
 use termion::input::TermRead;
 use yaml_rust;
 
-#[derive(Debug)]
-struct Repo {
-    pub name: String,
-    pub path: String,
-    pub colour: Color,
-    pub keyword: String,
-}
-
-impl Repo {
-    pub fn new() -> Repo {
-        Repo {
-            name: String::new(),
-            path: String::new(),
-            colour: Color::White,
-            keyword: String::new(),
-        }
-    }
-}
-
 fn main() -> Result<()> {
     let stdout = io::stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
@@ -61,7 +45,6 @@ fn main() -> Result<()> {
     let settings = yaml_rust::YamlLoader::load_from_str(&f).unwrap();
     let repo_data = settings[0]["repos"].as_vec().unwrap();
 
-    let mut repos: Vec<Repo> = Vec::new();
     for a in repo_data {
         let data = a.as_hash().unwrap();
         for (k, v) in data {
@@ -97,12 +80,12 @@ fn main() -> Result<()> {
                 }
             }
 
-            repos.push(repo)
+            app.repos.push(repo)
         }
     }
 
     // println!("{:?}", repos);
-    if repos.len() == 0 {
+    if app.repos.len() == 0 {
         panic!("No repos set in the settings.yaml file");
     }
 
@@ -132,7 +115,8 @@ fn main() -> Result<()> {
                 .block(Block::default().borders(Borders::ALL).title("Search"));
             f.render_widget(input, chunks[1]);
 
-            let list_items: Vec<ListItem> = repos
+            let list_items: Vec<ListItem> = app
+                .repos
                 .iter()
                 .enumerate()
                 .map(|(idx, item)| {
@@ -158,7 +142,7 @@ fn main() -> Result<()> {
                     break;
                 }
                 Key::Char('\n') => {
-                    let selected_repo = &repos[app.selected_idx];
+                    let selected_repo = &app.repos[app.selected_idx];
                     Command::new("sh")
                         .arg("-c")
                         .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
@@ -167,10 +151,10 @@ fn main() -> Result<()> {
                     break;
                 }
                 Key::Down => {
-                    app.selected_idx = (app.selected_idx + 1) % repos.len();
+                    app.selected_idx = (app.selected_idx + 1) % app.repos.len();
                 }
                 Key::Up => {
-                    app.selected_idx = (app.selected_idx + repos.len() - 1) % repos.len();
+                    app.selected_idx = (app.selected_idx + app.repos.len() - 1) % app.repos.len();
                 }
                 // Key::Char(c) => {
                 //     println!("char {}", c);

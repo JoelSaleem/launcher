@@ -1,3 +1,4 @@
+use crate::repo::Repo;
 use std::default::Default;
 
 pub enum Mode {
@@ -8,7 +9,7 @@ pub enum Mode {
 pub struct App {
     pub search_str: String,
     pub selected_idx: usize,
-    pub items: Vec<String>,
+    pub repos: Vec<Repo>,
     pub mode: Mode,
 }
 
@@ -17,7 +18,7 @@ impl Default for App {
         App {
             search_str: String::new(),
             selected_idx: 0,
-            items: Vec::new(),
+            repos: Vec::new(),
             mode: Mode::Selecting,
         }
     }

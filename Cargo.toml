@@ -1,0 +1,12 @@
+[package]
+authors = ["JoelSaleem <joeljsaleem@gmail.com>"]
+edition = "2018"
+name = "launcher"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+termion = "1.5"
+tui = "0.13"
+yaml-rust = "0.4.4"

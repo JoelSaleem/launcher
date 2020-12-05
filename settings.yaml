@@ -1,0 +1,11 @@
+repos:
+  - origami:
+      name: origami
+      path: /asdf/
+      colour: red
+      keyword: code
+  - binder:
+      name: binder
+      path: /asdf/
+      colour: red
+      keyword: code

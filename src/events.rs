@@ -1,5 +1,7 @@
+use crate::app::App;
 use crate::config::Config;
 use std::io;
+use std::process::Command;
 use std::sync::mpsc;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -12,6 +14,11 @@ use termion::input::TermRead;
 pub enum Event<I> {
     Input(I),
     Tick,
+}
+
+pub enum Action {
+    Break,
+    Continue,
 }
 
 /// A small event handler that wrap termion input and tick events. Each event
@@ -68,11 +75,49 @@ impl Events {
         self.rx.recv()
     }
 
-    pub fn disable_exit_key(&mut self) {
-        self.ignore_exit_key.store(true, Ordering::Relaxed);
-    }
-
-    pub fn enable_exit_key(&mut self) {
-        self.ignore_exit_key.store(false, Ordering::Relaxed);
+    pub fn handle_user_input(&self, app: &mut App) -> Action {
+        if let Event::Input(input) = self.next().expect("none") {
+            match input {
+                Key::Esc => return Action::Break,
+                Key::Char('\n') => {
+                    if app.selected_idx < app.filtered_repos.len() {
+                        let selected_repo = &app.filtered_repos[app.selected_idx];
+                        Command::new("sh")
+                            .arg("-c")
+                            .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
+                            .output()
+                            .unwrap();
+                        return Action::Break;
+                    }
+                    return Action::Continue;
+                }
+                Key::Down => {
+                    if app.filtered_repos.len() > 0 {
+                        app.selected_idx = (app.selected_idx + 1) % app.filtered_repos.len();
+                    }
+                    return Action::Continue;
+                }
+                Key::Up => {
+                    if app.filtered_repos.len() > 0 {
+                        app.selected_idx = (app.selected_idx + app.filtered_repos.len() - 1)
+                            % app.filtered_repos.len();
+                    }
+                    return Action::Continue;
+                }
+                Key::Char(c) => {
+                    app.search_str.push(c);
+                    return Action::Continue;
+                }
+                Key::Backspace => {
+                    app.search_str.pop();
+                    return Action::Continue;
+                }
+                _ => {
+                    return Action::Continue;
+                }
+            }
+        } else {
+            return Action::Continue;
+        }
     }
 }

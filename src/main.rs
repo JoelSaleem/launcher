@@ -28,52 +28,8 @@ fn main() -> Result<()> {
 
     let events = Events::new();
     let mut app = app::App::default();
+    Repo::read_from_settings(&mut app);
 
-    let f = fs::read_to_string("/Users/joelsaleem/.gitlauncher/settings.yaml")
-        .expect("could not read settings.yaml");
-    let settings = yaml_rust::YamlLoader::load_from_str(&f).unwrap();
-    let repo_data = settings[0]["repos"].as_vec().unwrap();
-
-    for a in repo_data {
-        let data = a.as_hash().unwrap();
-        for (k, v) in data {
-            let v = v.as_hash().unwrap();
-            let mut repo = Repo::new();
-            for (key, val) in v.iter() {
-                match key.as_str().unwrap() {
-                    "name" => repo.name = String::from(val.as_str().unwrap()),
-                    "path" => repo.path = String::from(val.as_str().unwrap()),
-                    "colour" => {
-                        let col_data = val.as_hash().unwrap();
-                        let mut red: u8 = 0;
-                        let mut green: u8 = 0;
-                        let mut blue: u8 = 0;
-                        for (col, val) in col_data.iter() {
-                            match col.as_str().unwrap() {
-                                "r" => {
-                                    red = val.as_i64().unwrap() as u8;
-                                }
-                                "g" => {
-                                    green = val.as_i64().unwrap() as u8;
-                                }
-                                "b" => {
-                                    blue = val.as_i64().unwrap() as u8;
-                                }
-                                _ => {}
-                            }
-                        }
-                        repo.colour = Color::Rgb(red, green, blue);
-                    }
-                    "keyword" => repo.keyword = String::from(val.as_str().unwrap()),
-                    _ => {}
-                }
-            }
-
-            app.repos.push(repo)
-        }
-    }
-
-    // println!("{:?}", repos);
     if app.repos.len() == 0 {
         panic!("No repos set in the settings.yaml file");
     }
@@ -81,7 +37,7 @@ fn main() -> Result<()> {
     loop {
         app.filtered_repos = Vec::new();
         for repo in app.repos.iter() {
-            if repo.name.contains(&app.search_str) {
+            if repo.id.contains(&app.search_str) {
                 app.filtered_repos.push(repo.clone());
             }
         }
@@ -126,7 +82,7 @@ fn main() -> Result<()> {
                         Style::default().fg(item.colour)
                     };
 
-                    ListItem::new(Spans::from(Span::styled(&item.name, style)))
+                    ListItem::new(Spans::from(Span::styled(&item.id, style)))
                 })
                 .collect();
             let repo_list =

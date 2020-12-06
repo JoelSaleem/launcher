@@ -59,3 +59,7 @@ This binary should be copied
 ### Alias
 
 In your alias file for the terminal you're using (e.g. ~/.zshrc), create an alias to run the binary.
+
+## Usage:
+
+Once Launcher has been opened, you can use the `arrow keys` (up and down) to scroll through the list of options. Press `enter` to execute. Press `esc` to quit. And also start typing to filter the options list. Note: the search functionality is an exact, contiguous substring, so no fuzzy search etc.

@@ -43,7 +43,7 @@ pub fn draw_terminal_ui(
                 .split(f.size());
 
             let mut text = Text::from(Spans::from(
-                "Launcher (press `esc` to quit, `enter` to open code, type to `search`)",
+                "Launcher (press `esc` to quit, `enter` to launch, type to `search`)",
             ));
             text.patch_style(Style::default());
             let help_message = Paragraph::new(text);

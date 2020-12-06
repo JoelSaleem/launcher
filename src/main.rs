@@ -2,43 +2,31 @@ mod app;
 mod config;
 mod events;
 mod repo;
-
-use crate::repo::Repo;
+mod terminal;
 
 use crate::events::{Event, Events};
+use crate::repo::Repo;
+use crate::terminal::build_terminal;
+
 use io::Result;
 use std::fs;
 use std::io;
 use std::process::Command;
-use std::sync::mpsc;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use std::thread;
-use std::time::Duration;
 use termion::event::Key;
-use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
 use tui::{
-    backend::TermionBackend,
     layout::{Constraint, Direction, Layout},
     style::{Color, Style},
     text::{Span, Spans, Text},
     widgets::{Block, Borders, List, ListItem, Paragraph},
-    Terminal,
 };
 
 use termion::input::TermRead; // Do not delete
 use yaml_rust;
 
 fn main() -> Result<()> {
-    let stdout = io::stdout().into_raw_mode()?;
-    let stdout = MouseTerminal::from(stdout);
-    let stdout = AlternateScreen::from(stdout);
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = build_terminal().unwrap();
 
-    let mut events = Events::new();
+    let events = Events::new();
     let mut app = app::App::default();
 
     let f = fs::read_to_string("/Users/joelsaleem/.gitlauncher/settings.yaml")

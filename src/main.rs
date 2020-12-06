@@ -35,13 +35,7 @@ fn main() -> Result<()> {
     }
 
     loop {
-        app.filtered_repos = Vec::new();
-        for repo in app.repos.iter() {
-            if repo.id.contains(&app.search_str) {
-                app.filtered_repos.push(repo.clone());
-            }
-        }
-        // println!("{}", app.filtered_repos.len());
+        app.update_filtered_repos();
 
         // Draw UI
         terminal.draw(|f| {

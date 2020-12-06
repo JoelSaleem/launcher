@@ -18,3 +18,15 @@ impl Default for App {
         }
     }
 }
+
+impl App {
+    /// Use app.search_str to filter repos
+    pub fn update_filtered_repos(&mut self) {
+        self.filtered_repos = Vec::new();
+        for repo in self.repos.iter() {
+            if repo.id.contains(&self.search_str) {
+                self.filtered_repos.push(repo.clone());
+            }
+        }
+    }
+}

@@ -10,6 +10,8 @@ Note: only supports iterm2 (neither windows nor macOS terminal support)
 Note: a proper build of the project is a work in progress.  
 If you do want to run this now, you must ensure that you you have rust installed. You can find instructions [here](https://www.rust-lang.org/tools/install).
 
+You will need to change (this)[https://github.com/JoelSaleem/launcher/blob/main/src/repo.rs#L25] line in your local project to match your filepath (note, this will eventually be changed, but not right away).
+
 Then clone, the repo. From within the launcher root directory run:
 
 ```bash

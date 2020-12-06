@@ -75,49 +75,46 @@ impl Events {
         self.rx.recv()
     }
 
+    fn handle_enter_press(&self, app: &App) -> Action {
+        if app.selected_idx < app.filtered_repos.len() as i8 {
+            let selected_repo = &app.filtered_repos[app.selected_idx as usize];
+            Command::new("sh")
+                .arg("-c")
+                .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
+                .output()
+                .unwrap();
+            return Action::Break;
+        }
+        return Action::Continue;
+    }
+
+    fn handle_list_scroll(&self, app: &mut App, scroll_dir: i8) -> Action {
+        if app.filtered_repos.len() > 0 {
+            app.selected_idx = (app.selected_idx + (app.filtered_repos.len() as i8) + scroll_dir)
+                % (app.filtered_repos.len() as i8);
+        }
+        Action::Continue
+    }
+
     pub fn handle_user_input(&self, app: &mut App) -> Action {
         if let Event::Input(input) = self.next().expect("none") {
             match input {
-                Key::Esc => return Action::Break,
-                Key::Char('\n') => {
-                    if app.selected_idx < app.filtered_repos.len() {
-                        let selected_repo = &app.filtered_repos[app.selected_idx];
-                        Command::new("sh")
-                            .arg("-c")
-                            .arg(format!("{} {}", selected_repo.keyword, selected_repo.path))
-                            .output()
-                            .unwrap();
-                        return Action::Break;
-                    }
-                    return Action::Continue;
-                }
-                Key::Down => {
-                    if app.filtered_repos.len() > 0 {
-                        app.selected_idx = (app.selected_idx + 1) % app.filtered_repos.len();
-                    }
-                    return Action::Continue;
-                }
-                Key::Up => {
-                    if app.filtered_repos.len() > 0 {
-                        app.selected_idx = (app.selected_idx + app.filtered_repos.len() - 1)
-                            % app.filtered_repos.len();
-                    }
-                    return Action::Continue;
-                }
+                Key::Esc => Action::Break,
+                Key::Char('\n') => self.handle_enter_press(app),
+                Key::Down => self.handle_list_scroll(app, 1),
+                Key::Up => self.handle_list_scroll(app, -1),
                 Key::Char(c) => {
                     app.search_str.push(c);
-                    return Action::Continue;
+                    Action::Continue
                 }
                 Key::Backspace => {
                     app.search_str.pop();
-                    return Action::Continue;
+                    Action::Continue
                 }
-                _ => {
-                    return Action::Continue;
-                }
+                _ => Action::Continue,
             }
         } else {
-            return Action::Continue;
+            Action::Continue
         }
     }
 }

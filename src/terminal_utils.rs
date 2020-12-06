@@ -59,7 +59,7 @@ pub fn draw_terminal_ui(
                 .iter()
                 .enumerate()
                 .map(|(idx, item)| {
-                    let should_highlight = app.selected_idx == idx;
+                    let should_highlight = app.selected_idx == idx as i8;
                     let style = if should_highlight {
                         Style::default().bg(item.colour)
                     } else {

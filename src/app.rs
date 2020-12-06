@@ -3,7 +3,7 @@ use std::default::Default;
 
 pub struct App {
     pub search_str: String,
-    pub selected_idx: usize,
+    pub selected_idx: i8,
     pub repos: Vec<Repo>,
     pub filtered_repos: Vec<Repo>,
 }

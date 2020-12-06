@@ -4,7 +4,7 @@ use termion::{input::MouseTerminal, raw::IntoRawMode, raw::RawTerminal, screen::
 use tui::{backend::TermionBackend, Terminal};
 use tui::{
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
+    style::Style,
     text::{Span, Spans, Text},
     widgets::{Block, Borders, List, ListItem, Paragraph},
 };

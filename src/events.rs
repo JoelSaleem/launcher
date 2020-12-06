@@ -25,7 +25,7 @@ pub enum Action {
 /// type is handled in its own thread and returned to a common `Receiver`
 pub struct Events {
     rx: mpsc::Receiver<Event<Key>>,
-    input_handle: thread::JoinHandle<()>,
+    input_handle: thread::JoinHandle<()>, // WIP -- SWITCHING BETWEEN SEARCH AND LIST
     ignore_exit_key: Arc<AtomicBool>,
     tick_handle: thread::JoinHandle<()>,
 }

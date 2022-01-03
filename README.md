@@ -7,18 +7,13 @@ Note: only supports iterm2 (neither windows nor macOS terminal support)
 
 ## Setup
 
-Note: a proper build of the project is a work in progress.  
-If you do want to run this now, you must ensure that you you have rust installed. You can find instructions [here](https://www.rust-lang.org/tools/install).
+You will need to run,
 
-You will need to change [this](https://github.com/JoelSaleem/launcher/blob/main/src/repo.rs#L25) line in your local project to match your filepath (note, this will eventually be changed, but not right away).
-
-Then clone, the repo. From within the launcher root directory run:
-
-```bash
-cargo build
+```
+/path/to/executable /path/to/launcher_setting
 ```
 
-And then follow the instructions below.
+lancher_settings should be a .yaml file as detailed below:
 
 ### Launcher Directory
 

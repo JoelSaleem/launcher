@@ -22,8 +22,7 @@ impl Repo {
 
     pub fn read_from_settings(app: &mut App) {
         // Read repos from settings.yaml
-        let f = fs::read_to_string("/Users/joelsaleem/.launcher/settings.yaml")
-            .expect("could not read settings.yaml");
+        let f = fs::read_to_string(&app.path).expect("could not read settings.yaml");
         let settings = yaml_rust::YamlLoader::load_from_str(&f).unwrap();
         let repo_data = settings[0]["repos"].as_vec().unwrap();
 

@@ -6,17 +6,7 @@ pub struct App {
     pub selected_idx: i8,
     pub repos: Vec<Repo>,
     pub filtered_repos: Vec<Repo>,
-}
-
-impl Default for App {
-    fn default() -> App {
-        App {
-            search_str: String::new(),
-            selected_idx: 0,
-            repos: Vec::new(),
-            filtered_repos: Vec::new(),
-        }
-    }
+    pub path: String,
 }
 
 impl App {
@@ -27,6 +17,16 @@ impl App {
             if repo.id.contains(&self.search_str) {
                 self.filtered_repos.push(repo.clone());
             }
+        }
+    }
+
+    pub fn new(path: String) -> App {
+        App {
+            path: path,
+            search_str: String::new(),
+            selected_idx: 0,
+            repos: Vec::new(),
+            filtered_repos: Vec::new(),
         }
     }
 }

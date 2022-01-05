@@ -12,9 +12,13 @@ use events::Action;
 use io::Result;
 use std::env;
 use std::io;
+use std::thread::panicking;
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        panic!("Expected to receive the path to launcher settings as the first argument.")
+    }
     let path = &args[1];
 
     let mut terminal = build_terminal().unwrap();

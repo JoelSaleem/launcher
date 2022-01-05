@@ -1,7 +1,7 @@
 # Launcher
 
 Shortcuts to open directories (with IDEs, in finder etc.) from terminal, built in Rust.  
-Note: only supports iterm2 (neither windows nor macOS terminal support)
+Note: only supports zsh (neither windows nor macOS terminal support)
 
 ![launcher](docs_img.png)
 
